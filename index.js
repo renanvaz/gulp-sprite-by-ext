@@ -13,16 +13,20 @@ const PLUGIN_NAME = 'gulp-spriteluego';
 // generate style
 // ===================================================================================================================================
 function createCss(result){
+
+  // variable
   var count         = 0;
   var extension     = null;
   var cssRetina     = {};
   var css           = {};
 
+  // init object collections
   cssRetina["sprites"] = [];
   cssRetina["retina_sprites"] = [];
   cssRetina["retina_groups"] = [];
   css["sprites"] = [];
 
+  // retrieve cordinates image and generate css
   for (var key in result.coordinates){
 
     count += 1;
@@ -73,6 +77,7 @@ function createCss(result){
     return data.replace(".", "")+ '-' +'sprite' + index;
   };
 
+  // return style by extension
   if (extension === ".png") {
     return cssRetina;
   }else{
@@ -84,6 +89,7 @@ function createCss(result){
 // ===================================================================================================================================
 function generateSprite(fileImage,pathExtension,extName){
 
+  // run generate sprite image
   Spritesmith.run({src: fileImage}, function handleResult (err, result) {
 
     var stylePath        = pathExtension + 'sprite.css';
@@ -92,11 +98,12 @@ function generateSprite(fileImage,pathExtension,extName){
 
     if (extName === ".png"){
 
-      // resize image
+      // resize image for retina
       Jimp.read(result.image).then(function (retina) {
         retina.resize(result.properties.width/2, result.properties.height/2).write(spritePath);
       });
 
+      // and create dirs
       mkdirp(pathExtension, function () {
         makeImage(spriteRetinaPath,result);
         makeCss(stylePath,result,'css_retina');
@@ -104,6 +111,7 @@ function generateSprite(fileImage,pathExtension,extName){
 
     }else{
 
+      // and create dirs for jpg
       mkdirp(pathExtension, function () {
         makeImage(spritePath,result);
         makeCss(stylePath,result,'css');
@@ -136,6 +144,8 @@ function spriteluego() {
 
   // init transform
   var onBegin = function(file, encoding, callback) {
+
+    // create array by extension
     var extension = path.extname(file.path);
     if(extension === ".png"){
       imagesPng.push(file);
