@@ -51,9 +51,9 @@ function generateSprite(ext) {
       result.coordinates2x = convertCoordnates(result.coordinates);
       result.image2x = Buffer.from(result.image);
 
+      // Recalc CSS for 1x
       result.coordinates = convertCoordnates(result.coordinates, .5);
 
-      // Recalc CSS for 1x
       console.log(result.coordinates);
       console.log(result.coordinates2x);
 
