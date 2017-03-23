@@ -1,8 +1,8 @@
 var gulp = require('gulp');
-var plugin = require('../index.js');
+var spriteByExt = require('../index.js');
 
 gulp.task('default', function () {
-  return gulp.src('./images/*')
-  .pipe(plugin())
-  .pipe(gulp.dest('build'));
+  return gulp.src('./images/**/*')
+      .pipe(spriteByExt())
+      .pipe(gulp.dest('build'));
 });
