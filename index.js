@@ -25,14 +25,54 @@ function spriteByExt() {
 
   // Generate an Image and CSS for SpriteSheet
   let execute = function execute(callback) {
-    var promises = [];
+    let promises = [];
+    const _this = this;
 
     for (let ext in images) {
       promises.push(generateSprite(ext));
     }
 
-    Q.all(promises, () => console.log('done'));
-    // Q.all(promises, () => callback());
+    Q.all(promises).then(function(response){
+
+      let imageJpg = new gutil.File({
+        path:"./JPG/sprite.jpg",
+        contents:response[0].image
+      });
+
+      _this.push(imageJpg);
+
+      let cssJpg = new gutil.File({
+        path:"./JPG/sprite.css",
+        contents:new Buffer(response[0].css)
+      });
+
+      _this.push(cssJpg);
+
+      let imagePngRetina = new gutil.File({
+        path:"./PNG/sprite@2x.png",
+        contents:response[1].image2x
+      });
+
+      _this.push(imagePngRetina);
+
+      let imagePng = new gutil.File({
+        path:"./PNG/sprite.png",
+        contents:response[1].image
+      });
+
+      _this.push(imagePng);
+
+      let cssPng = new gutil.File({
+        path:"./PNG/sprite.css",
+        contents:new Buffer(response[1].css)
+      });
+
+      _this.push(cssPng);
+
+    }).done(function(){
+      callback();
+    });
+
   };
 
   return through.obj(prepare, execute);
@@ -48,21 +88,19 @@ function generateSprite(ext) {
 
     if (ext === '.png') {
       // Consider the default image as 2x
-      result.coordinates2x = convertCoordnates(result.coordinates);
+      result.coordinates2x = convertCoordinates(result.coordinates);
       result.image2x = Buffer.from(result.image);
 
       // Recalc CSS for 1x
-      result.coordinates = convertCoordnates(result.coordinates, .5);
+      result.coordinates = convertCoordinates(result.coordinates, .5);
 
-      console.log(result.coordinates);
-      console.log(result.coordinates2x);
+      result.css = templater(createCss(result), {format: 'css'});
 
       // resize image for 1x
       resizeImage(result.image, result.properties.width / 2, result.properties.height / 2).then((buffer) => { result.image = buffer; d.resolve(result); });
 
     } else {
-      // templater(createCss(generate), {format: 'css'});
-
+      result.css = templater(createCss(result), {format: 'css'});
       d.resolve(result);
     }
   });
@@ -70,7 +108,7 @@ function generateSprite(ext) {
   return d.promise;
 };
 
-function convertCoordnates(coordinates, scale = 1) {
+function convertCoordinates(coordinates, scale = 1) {
   var converted = [];
 
   for (let name in coordinates) {
@@ -90,7 +128,7 @@ function resizeImage(image, w, h) {
   let d = Q.defer();
 
   Jimp.read(image).then((jimpImage) => {
-     jimpImage.resize(w, h).getBuffer('image/png', (err, buffer) => err ? d.reject(err) : d.resolve(buffer));
+    jimpImage.resize(w, h).getBuffer('image/png', (err, buffer) => err ? d.reject(err) : d.resolve(buffer));
   });
 
   return d.promise;
