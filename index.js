@@ -16,7 +16,8 @@ let images        = {};
 function spriteByExt(params = {}) {
     const defaults = {
         path: '../images/', // Path to write on CSS for image address
-        preprocessor: 'css' // Define css type output (accept css, less, sass, stylus)
+        preprocessor: 'css', // Define css type output (accept css, less, sass, stylus)
+        accept: ['.jpg','.png','.svg'] // Define extension acceptable (accept JPG, PNG, SVG)
     };
 
     const config = Object.assign({}, defaults, params);
@@ -29,8 +30,13 @@ function spriteByExt(params = {}) {
         }
 
         if (file.isStream()) {
-            cb(new gutil.PluginError('gulp-sprite-by-ext', 'Streaming not supported'));
-            return;
+            this.emit('error', new PluginError('gulp-sprite-by-ext', 'Streaming not supported'));
+            return callback();
+        }
+
+        if (config.accept.indexOf(path.extname(file.path)) < 0) {
+            this.emit('error', new PluginError('gulp-sprite-by-ext', path.extname(file.path) + ' extension not supported'));
+            return callback();
         }
 
         let ext = path.extname(file.path);
@@ -59,7 +65,7 @@ function spriteByExt(params = {}) {
                 const svg = sprite.compile();
 
                 imageSvg = new gutil.File({
-                    path: 'sprite.svg',
+                    path: filename+ext,
                     contents: new Buffer(svg)
                 });
 
