@@ -16,49 +16,49 @@ To change `display` (e.g. `display: inline-block;`), we suggest using a common C
 // HTML
 <i class="icon icon-home"></i>
 */
-.icon-001-pin-png {
+.png-001-pin {
   background-image: url(./sprite.png);
   background-position: 0px 0px;
   width: 32px;
   height: 32px;
 }
-.icon-002-police-car-png {
+.png-002-police-car {
   background-image: url(./sprite.png);
   background-position: -32px 0px;
   width: 32px;
   height: 32px;
 }
-.icon-003-train-png {
+.png-003-train {
   background-image: url(./sprite.png);
   background-position: 0px -32px;
   width: 32px;
   height: 32px;
 }
-.icon-004-map-png {
+.png-004-map {
   background-image: url(./sprite.png);
   background-position: -32px -32px;
   width: 32px;
   height: 32px;
 }
-.icon-005-gas-station-png {
+.png-005-gas-station {
   background-image: url(./sprite.png);
   background-position: -64px 0px;
   width: 32px;
   height: 32px;
 }
-.icon-006-ship-png {
+.png-006-ship {
   background-image: url(./sprite.png);
   background-position: -64px -32px;
   width: 32px;
   height: 32px;
 }
-.icon-007-scooter-png {
+.png-007-scooter {
   background-image: url(./sprite.png);
   background-position: 0px -64px;
   width: 32px;
   height: 32px;
 }
-.icon-008-helmet-png {
+.png-008-helmet {
   background-image: url(./sprite.png);
   background-position: -32px -64px;
   width: 32px;
