@@ -5,7 +5,6 @@ const through     = require('through2');
 const Spritesmith = require('spritesmith');
 const Jimp        = require('jimp');
 const templater   = require('spritesheet-templates');
-const fs          = require('fs');
 const gutil       = require('gulp-util');
 const PluginError = gutil.PluginError;
 
@@ -28,6 +27,8 @@ function spriteByExt(params = {}) {
 
     // Create a array list by extenssion
     let prepare = function prepare(file, encoding, callback) {
+        let ext = path.extname(file.path);
+
         if (file.isNull()) {
             cb(null, file);
             return;
@@ -38,12 +39,10 @@ function spriteByExt(params = {}) {
             return callback();
         }
 
-        if (config.accept.indexOf(path.extname(file.path)) < 0) {
-            this.emit('error', new PluginError('gulp-sprite-by-ext', path.extname(file.path) + ' extension not supported'));
+        if (config.accept.indexOf(ext) < 0) {
+            this.emit('error', new PluginError('gulp-sprite-by-ext', ext+' extension not supported'));
             return callback();
         }
-
-        let ext = path.extname(file.path);
 
         if (typeof images[ext] === 'undefined') images[ext] = [];
 
@@ -57,24 +56,7 @@ function spriteByExt(params = {}) {
         let promises = [];
 
         for (let ext in images) {
-            if (ext != ".svg") {
-                promises.push(generateSprite(ext));
-            } else {
-                const sprite = svgSprite.collection({clean: {stripAttrs: ['id']}});
-
-                for (let file of images[ext]) {
-                    sprite.add(path.basename(file.path).replace(/\./g, '-'), file.contents.toString());
-                }
-
-                const svg = sprite.compile();
-
-                imageSvg = new gutil.File({
-                    path: filename+ext,
-                    contents: new Buffer(svg)
-                });
-
-                this.push(imageSvg);
-            }
+            promises.push(generateSprite(ext));
         }
 
         Q.all(promises).then((response) => {
@@ -101,13 +83,15 @@ function spriteByExt(params = {}) {
                     contents: result.image
                 });
 
-                css = new gutil.File({
-                    path: filename+result.ext.replace('.', '-')+'.'+config.preprocessor,
-                    contents: new Buffer(templater({sprites: result.coordinates, spritesheet: {width: result.properties.width, height: result.properties.height, image: config.path+filename+result.ext}}, {format: config.preprocessor,formatOpts:config.suffix(result.ext)}))
-                });
-
                 this.push(image);
-                this.push(css);
+
+                if (typeof result.coordinates !== 'undefined') {
+                    css = new gutil.File({
+                        path: filename+result.ext.replace('.', '-')+'.'+config.preprocessor,
+                        contents: new Buffer(templater({sprites: result.coordinates, spritesheet: {width: result.properties.width, height: result.properties.height, image: config.path+filename+result.ext}}, {format: config.preprocessor,formatOpts:config.suffix(result.ext)}))
+                    });
+                    this.push(css);
+                }
             }
         }).done(function(){
             callback();
@@ -122,31 +106,41 @@ function spriteByExt(params = {}) {
 function generateSprite(ext) {
     let d = Q.defer();
 
-    Spritesmith.run({src: images[ext]}, function handle(err, result) {
-        if (err) { d.reject(); return false; }
+    if (ext === '.svg') {
+        const sprite = svgSprite.collection({clean: {stripAttrs: ['id']}});
 
-        result.ext = ext;
-
-        if (ext === '.png') {
-            // Consider the default image as 2x
-            result.image2x = Buffer.from(result.image);
-
-            // Convert coordnates for templater
-            result.coordinates2x = convertCoordinates(result.coordinates);
-            result.properties2x = {width: result.properties.width, height: result.properties.height};
-
-            // Convert coordinates for templater and recalc CSS for 1x
-            result.coordinates = convertCoordinates(result.coordinates, .5);
-            result.properties = {width: result.properties.width * .5, height: result.properties.height * .5};
-
-            // resize image for 1x
-            resizeImage(result.image, result.properties.width, result.properties.height).then((buffer) => { result.image = buffer; d.resolve(result); });
-        } else {
-            // Convert coordnates for templater
-            result.coordinates = convertCoordinates(result.coordinates);
-            d.resolve(result);
+        for (let file of images[ext]) {
+            sprite.add(path.basename(file.path).replace(/\./g, '-'), file.contents.toString());
         }
-    });
+
+        images[ext].image = new Buffer(sprite.compile());
+    } else {
+        Spritesmith.run({src: images[ext]}, function handle(err, result) {
+            if (err) { d.reject(); return false; }
+
+            result.ext = ext;
+
+            if (ext === '.png') {
+                // Consider the default image as 2x
+                result.image2x = Buffer.from(result.image);
+
+                // Convert coordnates for templater
+                result.coordinates2x = convertCoordinates(result.coordinates);
+                result.properties2x = {width: result.properties.width, height: result.properties.height};
+
+                // Convert coordinates for templater and recalc CSS for 1x
+                result.coordinates = convertCoordinates(result.coordinates, .5);
+                result.properties = {width: result.properties.width * .5, height: result.properties.height * .5};
+
+                // resize image for 1x
+                resizeImage(result.image, result.properties.width, result.properties.height).then((buffer) => { result.image = buffer; d.resolve(result); });
+            } else {
+                // Convert coordnates for templater
+                result.coordinates = convertCoordinates(result.coordinates);
+                d.resolve(result);
+            }
+        });
+    }
 
     return d.promise;
 };
