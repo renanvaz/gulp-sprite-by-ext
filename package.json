@@ -1,5 +1,5 @@
 {
-  "name": "gulp-spriteByExt",
+  "name": "gulp-spritebyext",
   "version": "1.0.0",
   "description": "Sprite generator by extension file",
   "main": "index.js",
