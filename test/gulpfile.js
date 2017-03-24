@@ -3,10 +3,9 @@ var gulp = require('gulp');
 var spriteByExt = require('../index.js');
 
 gulp.task('default', function () {
-  return gulp.src(['./images/**/*', '!./images/**/*.svg'])
+  return gulp.src(['./images/**/*'])
       .pipe(spriteByExt({
-        path: './',
-        preprocessor: 'css'
+        path:'./'
       }))
       .pipe(gulp.dest('./build'));
 });
