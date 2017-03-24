@@ -12,6 +12,8 @@ const PluginError = gutil.PluginError;
 let images        = {};
 
 function spriteByExt() {
+  // path.relative(from, to)
+
   // Create a array list by extenssion
   let prepare = function prepare(file, encoding, callback) {
     let ext = path.extname(file.path);
@@ -36,29 +38,15 @@ function spriteByExt() {
 
       for (let result of response) {
         if (result.ext == '.png') {
-          let image2x = new gutil.File({
-            path: 'sprite@2x'.result.ext,
-            contents: result.image2x
-          });
-
-          let css2x = new gutil.File({
-            path: 'sprite'.result.ext,
-            contents: new Buffer(templater(result.coordinates2x, {format: 'css'}))
-          });
+          let image2x = new gutil.File({path: 'sprite@2x'+result.ext, contents: result.image2x});
+          let css2x = new gutil.File({path: 'sprite'+result.ext.replace('.', '-')+'.css', contents: result.css2x});
 
           this.push(image2x);
           this.push(css2x);
         }
 
-        image = new gutil.File({
-          path: 'sprite'.result.ext,
-          contents: result.image
-        });
-
-        css = new gutil.File({
-          path: 'sprite'.result.ext,
-          contents: new Buffer(templater(result.coordinates, {format: 'css'}))
-        });
+        image = new gutil.File({path: 'sprite'+result.ext, contents: result.image});
+        css = new gutil.File({path: 'sprite'+result.ext.replace('.', '-')+'.css', contents: result.css});
 
         this.push(image);
         this.push(css);
@@ -66,7 +54,6 @@ function spriteByExt() {
     }).done(function(){
       callback();
     });
-
   };
 
   return through.obj(prepare, execute);
@@ -80,21 +67,26 @@ function generateSprite(ext) {
   Spritesmith.run({src: images[ext]}, function handle(err, result) {
     if (err) { d.reject(); return false; }
 
-    if (ext === '.png') {
-      result.ext = ext;
+    result.ext = ext;
 
+    if (ext === '.png') {
       // Consider the default image as 2x
       result.image2x = Buffer.from(result.image);
 
       // Convert coordnates for templater
       result.coordinates2x = convertCoordinates(result.coordinates);
+      result.css2x = new Buffer(templater({sprites: result.coordinates2x, spritesheet: {width: result.properties.width, height: result.properties.height, image: ''}}, {format: 'css'}));
 
       // Convert coordinates for templater and recalc CSS for 1x
       result.coordinates = convertCoordinates(result.coordinates, .5);
+      result.css = new Buffer(templater({sprites: result.coordinates, spritesheet: {width: result.properties.width * .5, height: result.properties.height * .5, image: ''}}, {format: 'css'}));
 
       // resize image for 1x
       resizeImage(result.image, result.properties.width / 2, result.properties.height / 2).then((buffer) => { result.image = buffer; d.resolve(result); });
     } else {
+      // Convert coordnates for templater
+      result.coordinates = convertCoordinates(result.coordinates);
+      result.css = new Buffer(templater({sprites: result.coordinates, spritesheet: {width: result.properties.width, height: result.properties.height, image: ''}}, {format: 'css'}));
       d.resolve(result);
     }
   });
@@ -107,7 +99,7 @@ function convertCoordinates(coordinates, scale = 1) {
 
   for (let name in coordinates) {
     converted.push({
-      name:   name.replace('.([^.]+)$', '-sprite-$1'),
+      name:   path.basename(name).replace(/\./g, '-'),
       x:      coordinates[name].x * scale,
       y:      coordinates[name].y * scale,
       width:  coordinates[name].width * scale,
