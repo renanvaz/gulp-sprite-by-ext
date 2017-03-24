@@ -51,7 +51,7 @@ function spriteByExt(params = {}) {
           });
 
           let css2x = new gutil.File({
-            path: filename2x+result.ext.replace('.', '-')+'.less',
+            path: filename2x+result.ext.replace('.', '-')+'.css',
             contents: new Buffer(templater({sprites: result.coordinates2x, spritesheet: {width: result.properties2x.width, height: result.properties2x.height, image: config.path+filename2x+result.ext}}, {format: 'css'}))
           });
 
@@ -65,7 +65,7 @@ function spriteByExt(params = {}) {
         });
 
         css = new gutil.File({
-          path: filename+result.ext.replace('.', '-')+'.less',
+          path: filename+result.ext.replace('.', '-')+'.css',
           contents: new Buffer(templater({sprites: result.coordinates, spritesheet: {width: result.properties.width, height: result.properties.height, image: config.path+filename+result.ext}}, {format: 'css'}))
         });
 
