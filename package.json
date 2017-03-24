@@ -1,14 +1,14 @@
 {
-  "name": "gulp-spritebyext",
-  "version": "1.0.0",
+  "name": "gulp-sprite-by-ext",
+  "version": "1.0.1",
   "description": "Sprite generator by extension file",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "spriteByExt",
-    "gulp-spriteByExt",
+    "sprite-by-ext",
+    "gulp-sprite-by-ext",
     "gulp-sprite",
     "gulp-spritesheet",
     "sprite",
