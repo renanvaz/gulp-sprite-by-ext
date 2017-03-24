@@ -5,6 +5,7 @@ const through     = require('through2');
 const Spritesmith = require('spritesmith');
 const Jimp        = require('jimp');
 const templater   = require('spritesheet-templates');
+const fs          = require('fs');
 const gutil       = require('gulp-util');
 const PluginError = gutil.PluginError;
 
@@ -18,8 +19,8 @@ function spriteByExt(params = {}) {
         path: '../images/', // Path to write on CSS for image address
         preprocessor: 'css', // Define css type output (accept css, less, sass, stylus)
         accept: ['.jpg','.png','.svg'], // Define extension acceptable (accept JPG, PNG, SVG)
-        suffix: function (extension){
-            return { cssSelector: function (sprite) { return extension + '-' + sprite.name; }};
+        rename: (id, ext) => {
+            return ext+'-'+id;
         }
     };
 
@@ -70,8 +71,15 @@ function spriteByExt(params = {}) {
                     });
 
                     let css2x = new gutil.File({
-                        path: filename2x+result.ext.replace('.', '-')+'.'+config.preprocessor,
-                        contents: new Buffer(templater({sprites: result.coordinates2x, spritesheet: {width: result.properties2x.width, height: result.properties2x.height, image: config.path+filename2x+result.ext}}, {format: config.preprocessor,formatOpts:config.suffix(result.ext)}))
+                        path: result.ext.replace('.', '')+'-'+filename2x+'.'+config.preprocessor,
+                        contents: new Buffer(templater({
+                                sprites: result.coordinates2x,
+                                spritesheet: {width: result.properties2x.width, height: result.properties2x.height, image: config.path+filename2x+result.ext}
+                            }, {
+                                format: config.preprocessor,
+                                formatOpts: {cssSelector() => (sprite) => config.rename(sprite.name, result.ext)}
+                            }
+                        ))
                     });
 
                     this.push(image2x);
@@ -87,8 +95,15 @@ function spriteByExt(params = {}) {
 
                 if (typeof result.coordinates !== 'undefined') {
                     css = new gutil.File({
-                        path: filename+result.ext.replace('.', '-')+'.'+config.preprocessor,
-                        contents: new Buffer(templater({sprites: result.coordinates, spritesheet: {width: result.properties.width, height: result.properties.height, image: config.path+filename+result.ext}}, {format: config.preprocessor,formatOpts:config.suffix(result.ext)}))
+                        path: result.ext.replace('.', '')+'-'+filename+'.'+config.preprocessor,
+                        contents: new Buffer(templater({
+                                sprites: result.coordinates,
+                                spritesheet: {width: result.properties.width, height: result.properties.height, image: config.path+filename+result.ext}
+                            }, {
+                                format: config.preprocessor,
+                                formatOpts: {cssSelector() => (sprite) => config.rename(sprite.name, result.ext)}
+                            }
+                        ))
                     });
                     this.push(css);
                 }
@@ -113,7 +128,7 @@ function generateSprite(ext) {
             sprite.add(path.basename(file.path).replace(/\./g, '-'), file.contents.toString());
         }
 
-        images[ext].image = new Buffer(sprite.compile());
+        setTimeout(() => d.resolve({ext: ext, image: new Buffer(sprite.compile())}) ,0);
     } else {
         Spritesmith.run({src: images[ext]}, function handle(err, result) {
             if (err) { d.reject(); return false; }
