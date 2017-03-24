@@ -26,49 +26,43 @@ function spriteByExt() {
   // Generate an Image and CSS for SpriteSheet
   let execute = function execute(callback) {
     let promises = [];
-    const _this = this;
 
     for (let ext in images) {
       promises.push(generateSprite(ext));
     }
 
-    Q.all(promises).then(function(response){
+    Q.all(promises).then((response) => {
+      let image, css;
 
-      let imageJpg = new gutil.File({
-        path:"./JPG/sprite.jpg",
-        contents:response[0].image
-      });
+      for (let result of response) {
+        if (result.ext == '.png') {
+          let image2x = new gutil.File({
+            path: 'sprite@2x'.result.ext,
+            contents: result.image2x
+          });
 
-      _this.push(imageJpg);
+          let css2x = new gutil.File({
+            path: 'sprite'.result.ext,
+            contents: new Buffer(templater(result.coordinates2x, {format: 'css'}))
+          });
 
-      let cssJpg = new gutil.File({
-        path:"./JPG/sprite.css",
-        contents:new Buffer(response[0].css)
-      });
+          this.push(image2x);
+          this.push(css2x);
+        }
 
-      _this.push(cssJpg);
+        image = new gutil.File({
+          path: 'sprite'.result.ext,
+          contents: result.image
+        });
 
-      let imagePngRetina = new gutil.File({
-        path:"./PNG/sprite@2x.png",
-        contents:response[1].image2x
-      });
+        css = new gutil.File({
+          path: 'sprite'.result.ext,
+          contents: new Buffer(templater(result.coordinates, {format: 'css'}))
+        });
 
-      _this.push(imagePngRetina);
-
-      let imagePng = new gutil.File({
-        path:"./PNG/sprite.png",
-        contents:response[1].image
-      });
-
-      _this.push(imagePng);
-
-      let cssPng = new gutil.File({
-        path:"./PNG/sprite.css",
-        contents:new Buffer(response[1].css)
-      });
-
-      _this.push(cssPng);
-
+        this.push(image);
+        this.push(css);
+      }
     }).done(function(){
       callback();
     });
@@ -87,20 +81,20 @@ function generateSprite(ext) {
     if (err) { d.reject(); return false; }
 
     if (ext === '.png') {
+      result.ext = ext;
+
       // Consider the default image as 2x
-      result.coordinates2x = convertCoordinates(result.coordinates);
       result.image2x = Buffer.from(result.image);
 
-      // Recalc CSS for 1x
-      result.coordinates = convertCoordinates(result.coordinates, .5);
+      // Convert coordnates for templater
+      result.coordinates2x = convertCoordinates(result.coordinates);
 
-      result.css = templater(createCss(result), {format: 'css'});
+      // Convert coordinates for templater and recalc CSS for 1x
+      result.coordinates = convertCoordinates(result.coordinates, .5);
 
       // resize image for 1x
       resizeImage(result.image, result.properties.width / 2, result.properties.height / 2).then((buffer) => { result.image = buffer; d.resolve(result); });
-
     } else {
-      result.css = templater(createCss(result), {format: 'css'});
       d.resolve(result);
     }
   });
@@ -133,74 +127,5 @@ function resizeImage(image, w, h) {
 
   return d.promise;
 }
-
-// generate style
-// ===================================================================================================================================
-function createCss(result) {
-
-  // variable
-  let count         = 0;
-  let extension     = null;
-  let cssRetina     = {};
-  let css           = {};
-
-  // init object collections
-  cssRetina['sprites']        = [];
-  cssRetina['retina_sprites'] = [];
-  cssRetina['retina_groups']  = [];
-  css['sprites']              = [];
-
-  // retrieve cordinates image and generate css
-  for (let key in result.coordinates) {
-    count += 1;
-    extension = path.extname(key);
-
-    if (extension === '.png') {
-      cssRetina['sprites'].push({
-        name:   nameSelector(extension,count),
-        x:      result.coordinates[key].x / 2,
-        y:      result.coordinates[key].y / 2,
-        width:  result.coordinates[key].width / 2,
-        height: result.coordinates[key].height / 2
-      });
-
-      cssRetina['retina_sprites'].push({
-        name:   nameSelector(extension,count)+'@2x',
-        x:      result.coordinates[key].x,
-        y:      result.coordinates[key].y,
-        width:  result.coordinates[key].width,
-        height: result.coordinates[key].height
-      });
-
-      cssRetina['spritesheet'] = {width: result.properties.width / 2, height: result.properties.height / 2, image: 'sprite'+extension};
-      cssRetina['retina_spritesheet'] = {width: result.properties.width, height: result.properties.height, image: 'sprite@2x'+extension};
-
-      cssRetina['retina_groups'].push({
-        name: nameSelector (extension,count), index: (count -1)
-      });
-    } else {
-      css['sprites'].push({
-        name: nameSelector (extension,count),
-        x: result.coordinates[key].x,
-        y: result.coordinates[key].y,
-        width: result.coordinates[key].width,
-        height: result.coordinates[key].height
-      });
-      css['spritesheet'] = {width: result.properties.width , height: result.properties.height, image: 'sprite'+extension};
-    }
-  }
-
-  // naming css
-  function nameSelector(name) {
-    return name.replace('.([^.]+)$', '-sprite-$1');
-  };
-
-  // return style by extension
-  if (extension === '.png') {
-    return cssRetina;
-  } else {
-    return css;
-  }
-};
 
 module.exports = spriteByExt;
