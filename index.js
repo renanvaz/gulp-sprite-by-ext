@@ -15,7 +15,7 @@ let images        = {};
 function spriteByExt(params = {}) {
   const defaults = {
     path: '../images/', // Path to write on CSS for image address
-    preprocessor: 'less' // define css type output
+    preprocessor: 'css' // Define css type output (accept css, less, sass, stylus)
   };
 
   const config = Object.assign({}, defaults, params);
