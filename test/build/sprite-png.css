@@ -17,49 +17,49 @@ To change `display` (e.g. `display: inline-block;`), we suggest using a common C
 <i class="icon icon-home"></i>
 */
 .icon-001-pin-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: 0px 0px;
   width: 32px;
   height: 32px;
 }
 .icon-002-police-car-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: -32px 0px;
   width: 32px;
   height: 32px;
 }
 .icon-003-train-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: 0px -32px;
   width: 32px;
   height: 32px;
 }
 .icon-004-map-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: -32px -32px;
   width: 32px;
   height: 32px;
 }
 .icon-005-gas-station-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: -64px 0px;
   width: 32px;
   height: 32px;
 }
 .icon-006-ship-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: -64px -32px;
   width: 32px;
   height: 32px;
 }
 .icon-007-scooter-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: 0px -64px;
   width: 32px;
   height: 32px;
 }
 .icon-008-helmet-png {
-  background-image: url(../images/sprite.png);
+  background-image: url(./sprite.png);
   background-position: -32px -64px;
   width: 32px;
   height: 32px;
