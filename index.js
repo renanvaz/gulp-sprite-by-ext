@@ -8,13 +8,12 @@ const templater   = require('spritesheet-templates');
 const gutil       = require('gulp-util');
 const PluginError = gutil.PluginError;
 
-const filename      = 'sprite';
-const filename2x    = 'sprite@2x';
+const filename    = 'sprite';
+const filename2x  = 'sprite@2x';
 
 let images        = {};
 
 function spriteByExt(params = {}) {
-
     const defaults = {
         path: '../images/', // Path to write on CSS for image address
         preprocessor: 'css' // Define css type output (accept css, less, sass, stylus)
@@ -24,6 +23,16 @@ function spriteByExt(params = {}) {
 
     // Create a array list by extenssion
     let prepare = function prepare(file, encoding, callback) {
+        if (file.isNull()) {
+            cb(null, file);
+            return;
+        }
+
+        if (file.isStream()) {
+            cb(new gutil.PluginError('gulp-sprite-by-ext', 'Streaming not supported'));
+            return;
+        }
+
         let ext = path.extname(file.path);
 
         if (typeof images[ext] === 'undefined') images[ext] = [];
@@ -41,16 +50,11 @@ function spriteByExt(params = {}) {
             if (ext != ".svg") {
                 promises.push(generateSprite(ext));
             } else {
+                const sprite = svgSprite.collection({clean: {stripAttrs: ['id']}});
 
-
-
-
-
-
-
-                const sprite = svgSprite.collection();
-
-                sprite.add('heart', '<svg><path fill="#E86C60" d="M17,0c-1.9,0-3.7,0.8-5,2.1C10.7,0.8,8.9,0,7,0C3.1,0,0,3.1,0,7c0,6.4,10.9,15.4,11.4,15.8 c0.2,0.2,0.4,0.2,0.6,0.2s0.4-0.1,0.6-0.2C13.1,22.4,24,13.4,24,7C24,3.1,20.9,0,17,0z"></path></svg>');
+                for (let file of images[ext]) {
+                    sprite.add(path.basename(file.path).replace(/\./g, '-'), file.contents.toString());
+                }
 
                 const svg = sprite.compile();
 
@@ -59,15 +63,7 @@ function spriteByExt(params = {}) {
                     contents: new Buffer(svg)
                 });
 
-
                 this.push(imageSvg);
-
-
-
-
-
-
-
             }
         }
 
