@@ -1,6 +1,6 @@
 {
   "name": "gulp-sprite-by-ext",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Sprite generator by extension file",
   "main": "index.js",
   "scripts": {
@@ -13,9 +13,11 @@
     "gulp-spritesheet",
     "sprite",
     "spritesheet",
+    "retina",
     "gulp",
     "jpg",
     "png",
+    "svg",
     "spritesmith"
   ],
   "author": "TI <ti@luego.com.br>",

@@ -16,50 +16,50 @@ To change `display` (e.g. `display: inline-block;`), we suggest using a common C
 // HTML
 <i class="icon icon-home"></i>
 */
-.png-001-pin {
-  background-image: url(./sprite.png);
+.jpg-001-pin {
+  background-image: url(../images/sprite.jpg);
   background-position: 0px 0px;
   width: 32px;
   height: 32px;
 }
-.png-002-police-car {
-  background-image: url(./sprite.png);
+.jpg-002-police-car {
+  background-image: url(../images/sprite.jpg);
   background-position: -32px 0px;
   width: 32px;
   height: 32px;
 }
-.png-003-train {
-  background-image: url(./sprite.png);
+.jpg-003-train {
+  background-image: url(../images/sprite.jpg);
   background-position: 0px -32px;
   width: 32px;
   height: 32px;
 }
-.png-004-map {
-  background-image: url(./sprite.png);
+.jpg-004-map {
+  background-image: url(../images/sprite.jpg);
   background-position: -32px -32px;
   width: 32px;
   height: 32px;
 }
-.png-005-gas-station {
-  background-image: url(./sprite.png);
+.jpg-005-gas-station {
+  background-image: url(../images/sprite.jpg);
   background-position: -64px 0px;
   width: 32px;
   height: 32px;
 }
-.png-006-ship {
-  background-image: url(./sprite.png);
+.jpg-006-ship {
+  background-image: url(../images/sprite.jpg);
   background-position: -64px -32px;
   width: 32px;
   height: 32px;
 }
-.png-007-scooter {
-  background-image: url(./sprite.png);
+.jpg-007-scooter {
+  background-image: url(../images/sprite.jpg);
   background-position: 0px -64px;
   width: 32px;
   height: 32px;
 }
-.png-008-helmet {
-  background-image: url(./sprite.png);
+.jpg-008-helmet {
+  background-image: url(../images/sprite.jpg);
   background-position: -32px -64px;
   width: 32px;
   height: 32px;
