@@ -1,6 +1,6 @@
 {
   "name": "gulp-sprite-by-ext",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Sprite generator by extension file",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
   "author": "TI <ti@luego.com.br>",
   "license": "ISC",
   "dependencies": {
+    "assign-deep": "^0.4.5",
     "gulp": "^3.9.1",
     "gulp-util": "^3.0.8",
     "jimp": "^0.2.27",

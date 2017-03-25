@@ -1,11 +1,12 @@
+const fs          = require('fs');
 const path        = require('path');
+const assign      = require('assign-deep');
 const Q           = require('q');
 const svgSprite   = require('svg2sprite');
 const through     = require('through2');
 const Spritesmith = require('spritesmith');
 const Jimp        = require('jimp');
 const templater   = require('spritesheet-templates');
-const fs          = require('fs');
 const gutil       = require('gulp-util');
 const PluginError = gutil.PluginError;
 
@@ -28,7 +29,7 @@ function spriteByExt(params = {}) {
         filename2x: 'sprite@2x',
     };
 
-    const CONFIG = Object.assign({}, DEFAULTS, params);
+    const CONFIG = assign({}, DEFAULTS, params);
 
     // Create a array list by extenssion
     let prepare = function prepare(file, encoding, callback) {
