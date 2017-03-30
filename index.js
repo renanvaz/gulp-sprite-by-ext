@@ -18,12 +18,12 @@ let images        = {};
 function spriteByExt(params = {}) {
     const ACCEPT = ['.jpg','.png','.svg']; // Define extension acceptable (accept JPG, PNG, SVG)
     const DEFAULTS = {
+        slug: (id, ext) => {   // Pattern of class name and symbols id
+            return ext + '-' + id;
+        },
         css: {
-          preprocessor: 'css',        // Define css type output (accept css, less, sass, stylus)
-          imagePath: '../images/',    // Path to write on CSS for image address
-          className: (id, ext) => {   // Pattern of class name
-              return ext+'-'+id;
-          },
+            preprocessor: 'css',        // Define css type output (accept css, less, sass, stylus)
+            imagePath: '../images/',    // Path to write on CSS for image address
         },
         filename: 'sprite',
         filename2x: 'sprite@2x',
@@ -46,7 +46,7 @@ function spriteByExt(params = {}) {
         }
 
         if (ACCEPT.indexOf(ext) < 0) {
-            this.emit('error', new PluginError('gulp-sprite-by-ext', ext+' extension not supported'));
+            this.emit('error', new PluginError('gulp-sprite-by-ext', ext + ' extension not supported'));
             return callback();
         }
 
@@ -69,31 +69,43 @@ function spriteByExt(params = {}) {
             for (let result of response) {
                 if (result.ext != '.svg') {
                     let image2x = new gutil.File({
-                        path: CONFIG.filename2x+result.ext,
-                        contents: result.image2x
+                        path: CONFIG.filename2x + result.ext,
+                        contents: result.image2x,
                     });
 
                     let css2x = new gutil.File({
-                        path: result.ext.replace('.', '')+'-'+CONFIG.filename2x+'.'+CONFIG.css.preprocessor,
+                        path: result.ext.replace('.', '') + '-' + CONFIG.filename2x + '.' + CONFIG.css.preprocessor,
                         contents: new Buffer(templater({
                                 sprites: result.coordinates2x,
-                                spritesheet: {width: result.properties2x.width, height: result.properties2x.height, image: CONFIG.css.imagePath+CONFIG.filename2x+result.ext}
+                                spritesheet: {
+                                    width:  result.properties2x.width,
+                                    height: result.properties2x.height,
+                                    image:  CONFIG.css.imagePath + CONFIG.filename2x + result.ext,
+                                },
                             }, {
                                 format: CONFIG.css.preprocessor,
-                                formatOpts: {cssSelector: (sprite) => CONFIG.css.className(sprite.name, result.ext)}
-                            }
+                                formatOpts: {
+                                    cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
+                                },
+                            },
                         ))
                     });
 
                     let css = new gutil.File({
-                        path: result.ext.replace('.', '')+'-'+CONFIG.filename+'.'+CONFIG.css.preprocessor,
+                        path: result.ext.replace('.', '') + '-' + CONFIG.filename + '.' + CONFIG.css.preprocessor,
                         contents: new Buffer(templater({
                                 sprites: result.coordinates,
-                                spritesheet: {width: result.properties.width, height: result.properties.height, image: CONFIG.css.imagePath+CONFIG.filename+result.ext}
+                                spritesheet: {
+                                    width:  result.properties.width,
+                                    height: result.properties.height,
+                                    image:  CONFIG.css.imagePath + CONFIG.filename + result.ext,
+                                },
                             }, {
                                 format: CONFIG.css.preprocessor,
-                                formatOpts: {cssSelector: (sprite) => CONFIG.css.className(sprite.name, result.ext)}
-                            }
+                                formatOpts: {
+                                    cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
+                                },
+                            },
                         ))
                     });
 
@@ -103,7 +115,7 @@ function spriteByExt(params = {}) {
                 }
 
                 let image = new gutil.File({
-                    path: CONFIG.filename+result.ext,
+                    path: CONFIG.filename + result.ext,
                     contents: result.image
                 });
 
@@ -123,34 +135,39 @@ function generateSprite(ext) {
     let d = Q.defer();
 
     if (ext === '.svg') {
-        const sprite = svgSprite.collection({clean: {stripAttrs: ['id']}});
+        const sprite = svgSprite.collection({
+          inline: true,
+          clean: {
+            stripAttrs: ['id']
+          }
+        });
 
         let result = {};
 
         for (let file of images[ext]) {
-            sprite.add(path.basename(file.path).replace(/\./g, '-'), file.contents.toString());
+            sprite.add(CONFIG.slug(path.basename(file.path, ext), ext), file.contents.toString());
         }
 
-        result.ext = ext;
-        result.image = new Buffer(sprite.compile());
+        result.ext      = ext;
+        result.image    = new Buffer(sprite.compile());
 
         setTimeout(() => d.resolve(result) ,0);
     } else {
-        Spritesmith.run({src: images[ext]}, function handle(err, result) {
+        Spritesmith.run({ src: images[ext] }, function handle(err, result) {
             if (err) { d.reject(); return false; }
 
-            result.ext = ext;
+            result.ext              = ext;
 
             // Consider the default image as 2x
-            result.image2x = Buffer.from(result.image);
+            result.image2x          = Buffer.from(result.image);
 
             // Convert coordnates for templater
-            result.coordinates2x = convertCoordinates(result.coordinates);
-            result.properties2x = {width: result.properties.width, height: result.properties.height};
+            result.coordinates2x    = convertCoordinates(result.coordinates);
+            result.properties2x     = { width: result.properties.width, height: result.properties.height };
 
             // Convert coordinates for templater and recalc CSS for 1x
-            result.coordinates = convertCoordinates(result.coordinates, .5);
-            result.properties = {width: result.properties.width * .5, height: result.properties.height * .5};
+            result.coordinates      = convertCoordinates(result.coordinates, .5);
+            result.properties       = { width: result.properties.width * .5, height: result.properties.height * .5 };
 
             // resize image for 1x
             resizeImage(result.image, result.properties.width, result.properties.height).then((buffer) => { result.image = buffer; d.resolve(result); });
