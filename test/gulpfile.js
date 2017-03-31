@@ -5,7 +5,7 @@ gulp.task('default', function () {
     return gulp.src(['./images/**/*.{png,jpg,svg}'])
     .pipe(spriteByExt({
         css: {
-            preprocessor: 'less',
+            preprocessor: 'css',
             imagePath: '../image/'
         },
         filename: 'image',

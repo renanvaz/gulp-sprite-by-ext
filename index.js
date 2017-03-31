@@ -13,11 +13,10 @@ const PluginError = gutil.PluginError;
 const filename    = 'sprite';
 const filename2x  = 'sprite@2x';
 
-let images        = {};
 
 function spriteByExt(params = {}) {
-    const ACCEPT = ['.jpg','.png','.svg']; // Define extension acceptable (accept JPG, PNG, SVG)
-    const DEFAULTS = {
+    const ACCEPT    = ['.jpg','.png','.svg']; // Define extension acceptable (accept JPG, PNG, SVG)
+    const DEFAULTS  = {
         css: {
             preprocessor: 'css',        // Define css type output (accept css, less, sass, stylus)
             imagePath: '../images/',    // Path to write on CSS for image address
@@ -28,6 +27,54 @@ function spriteByExt(params = {}) {
     };
 
     const CONFIG = assign({}, DEFAULTS, params);
+
+    let images   = {};
+
+    function generateSprite(ext) {
+        let d = Q.defer();
+
+        if (ext === '.svg') {
+            const sprite = svgSprite.collection({
+              inline: true,
+              clean: {
+                stripAttrs: ['id']
+              }
+            });
+
+            let result = {};
+
+            for (let file of images[ext]) {
+                sprite.add(CONFIG.slug(path.basename(file.path, ext), ext), file.contents.toString());
+            }
+
+            result.ext      = ext;
+            result.image    = new Buffer(sprite.compile());
+
+            setTimeout(() => d.resolve(result) ,0);
+        } else {
+            Spritesmith.run({ src: images[ext] }, function handle(err, result) {
+                if (err) { d.reject(); return false; }
+
+                result.ext              = ext;
+
+                // Consider the default image as 2x
+                result.image2x          = Buffer.from(result.image);
+
+                // Convert coordnates for templater
+                result.coordinates2x    = convertCoordinates(result.coordinates);
+                result.properties2x     = { width: result.properties.width, height: result.properties.height };
+
+                // Convert coordinates for templater and recalc CSS for 1x
+                result.coordinates      = convertCoordinates(result.coordinates, .5);
+                result.properties       = { width: result.properties.width * .5, height: result.properties.height * .5 };
+
+                // resize image for 1x
+                resizeImage(result.image, result.properties.width, result.properties.height).then((buffer) => { result.image = buffer; d.resolve(result); });
+            });
+        }
+
+        return d.promise;
+    };
 
     // Create a array list by extenssion
     let prepare = function prepare(file, encoding, callback) {
@@ -85,7 +132,7 @@ function spriteByExt(params = {}) {
                                 formatOpts: {
                                     cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
                                 },
-                            },
+                            }
                         ))
                     });
 
@@ -103,7 +150,7 @@ function spriteByExt(params = {}) {
                                 formatOpts: {
                                     cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
                                 },
-                            },
+                            }
                         ))
                     });
 
@@ -125,54 +172,6 @@ function spriteByExt(params = {}) {
     };
 
     return through.obj(prepare, execute);
-};
-
-// generate sprite
-// ===================================================================================================================================
-function generateSprite(ext) {
-    let d = Q.defer();
-
-    if (ext === '.svg') {
-        const sprite = svgSprite.collection({
-          inline: true,
-          clean: {
-            stripAttrs: ['id']
-          }
-        });
-
-        let result = {};
-
-        for (let file of images[ext]) {
-            sprite.add(CONFIG.slug(path.basename(file.path, ext), ext), file.contents.toString());
-        }
-
-        result.ext      = ext;
-        result.image    = new Buffer(sprite.compile());
-
-        setTimeout(() => d.resolve(result) ,0);
-    } else {
-        Spritesmith.run({ src: images[ext] }, function handle(err, result) {
-            if (err) { d.reject(); return false; }
-
-            result.ext              = ext;
-
-            // Consider the default image as 2x
-            result.image2x          = Buffer.from(result.image);
-
-            // Convert coordnates for templater
-            result.coordinates2x    = convertCoordinates(result.coordinates);
-            result.properties2x     = { width: result.properties.width, height: result.properties.height };
-
-            // Convert coordinates for templater and recalc CSS for 1x
-            result.coordinates      = convertCoordinates(result.coordinates, .5);
-            result.properties       = { width: result.properties.width * .5, height: result.properties.height * .5 };
-
-            // resize image for 1x
-            resizeImage(result.image, result.properties.width, result.properties.height).then((buffer) => { result.image = buffer; d.resolve(result); });
-        });
-    }
-
-    return d.promise;
 };
 
 function convertCoordinates(coordinates, scale = 1) {
