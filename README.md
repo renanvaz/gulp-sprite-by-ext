@@ -15,8 +15,8 @@ npm install --save-dev gulp-sprite-by-ext
 Sprite-By-Ext is a gulp task for generate sprite image and style by type of  file image. below is a simple example for use:
 
 ```js
-var gulp = require('gulp');
-var spriteByExt = require('gulp-sprite-by-ext');
+const gulp        = require('gulp');
+const spriteByExt = require('gulp-sprite-by-ext');
 
 gulp.task('sprite-by-ext', function () {
     return gulp.src(['./images/**/*'])
@@ -29,21 +29,19 @@ gulp.task('sprite-by-ext', function () {
 Sprite-By-Ext can accept some options for use:
 
 ```js
-var gulp = require('gulp');
-var spriteByExt = require('../index.js');
+const gulp        = require('gulp');
+const spriteByExt = require('../index.js');
 
 gulp.task('default', function () {
     return gulp.src(['./images/**/*.{png,jpg,svg}'])
     .pipe(spriteByExt({
         css: {
-            preprocessor: 'less',
-            imagePath: './',
-            className: function(id,ext){
-                return id + '__' + ext;
-            }
+            preprocessor: 'css',
+            imagePath: '../images/',
         },
-        filename: 'image',
-        filename2x: 'image@2x',
+        slug: (id, ext) => id + '-' + ext,
+        filename: 'sprite',
+        filename2x: 'sprite@2x',
     }))
     .pipe(gulp.dest('./build'));
 });
@@ -55,7 +53,7 @@ Property           | Necessary | Type         | Plugin default value
 -------------------|-----------|--------------|-----------
 [css.preprocessor] | no        | `String`     | `css`
 [css.imagePath]    | no        | `String`     | `../images/`
-[css.className]    | no        | `function`   | `(id, ext) => { return ext+'-'+id; }`
+[slug]             | no        | `function`   | `(id, ext) => ext + '-' + id`
 [filename]         | no        | `String`     | `sprite`
 [filename2x]       | no        | `String`     | `sprite@2x`
 
@@ -74,9 +72,10 @@ Default value: `../images/`
 
 Defines which folder will have the image in css.
 
-#### css.className
+#### slug
 Type: `function`
-Default value: `(id, ext) => { return ext+'-'+id; }`
+Returns: `String`
+Default value: `(id, ext) => ext + '-' + id`
 
 Defines class name pattern in css.
 
