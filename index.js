@@ -10,9 +10,8 @@ const templater   = require('spritesheet-templates');
 const gutil       = require('gulp-util');
 const PluginError = gutil.PluginError;
 
-const filename    = 'sprite';
-const filename2x  = 'sprite@2x';
-
+let tpl = fs.readFileSync(__dirname + '/css.template.handlebars', 'utf8');
+templater.addHandlebarsTemplate('css', tpl);
 
 function spriteByExt(params = {}) {
     const ACCEPT    = ['.jpg','.png','.svg']; // Define extension acceptable (accept JPG, PNG, SVG)
@@ -61,8 +60,8 @@ function spriteByExt(params = {}) {
                 result.image2x          = Buffer.from(result.image);
 
                 // Convert coordnates for templater
-                result.coordinates2x    = convertCoordinates(result.coordinates);
-                result.properties2x     = { width: result.properties.width, height: result.properties.height };
+                result.coordinates2x    = convertCoordinates(result.coordinates, .5);
+                result.properties2x     = { width: result.properties.width * .5, height: result.properties.height * .5 };
 
                 // Convert coordinates for templater and recalc CSS for 1x
                 result.coordinates      = convertCoordinates(result.coordinates, .5);
@@ -118,14 +117,14 @@ function spriteByExt(params = {}) {
                         contents: result.image2x,
                     });
 
-                    let css2x = new gutil.File({
-                        path: result.ext.replace('.', '') + '-' + CONFIG.filename2x + '.' + CONFIG.css.preprocessor,
+                    let css = new gutil.File({
+                        path: result.ext.replace('.', '') + '-' + CONFIG.filename + '.' + CONFIG.css.preprocessor,
                         contents: new Buffer(templater({
-                                sprites: result.coordinates2x,
+                                sprites: result.coordinates,
                                 spritesheet: {
-                                    width:  result.properties2x.width,
-                                    height: result.properties2x.height,
-                                    image:  CONFIG.css.imagePath + CONFIG.filename2x + result.ext,
+                                    width:  result.properties.width,
+                                    height: result.properties.height,
+                                    image:  CONFIG.css.imagePath + CONFIG.filename + result.ext,
                                 },
                             }, {
                                 format: CONFIG.css.preprocessor,
@@ -136,14 +135,14 @@ function spriteByExt(params = {}) {
                         ))
                     });
 
-                    let css = new gutil.File({
-                        path: result.ext.replace('.', '') + '-' + CONFIG.filename + '.' + CONFIG.css.preprocessor,
+                    let css2x = new gutil.File({
+                        path: result.ext.replace('.', '') + '-' + CONFIG.filename2x + '.' + CONFIG.css.preprocessor,
                         contents: new Buffer(templater({
-                                sprites: result.coordinates,
+                                sprites: result.coordinates2x,
                                 spritesheet: {
-                                    width:  result.properties.width,
-                                    height: result.properties.height,
-                                    image:  CONFIG.css.imagePath + CONFIG.filename + result.ext,
+                                    width:  result.properties2x.width,
+                                    height: result.properties2x.height,
+                                    image:  CONFIG.css.imagePath + CONFIG.filename2x + result.ext,
                                 },
                             }, {
                                 format: CONFIG.css.preprocessor,
@@ -183,7 +182,7 @@ function convertCoordinates(coordinates, scale = 1) {
             x:      coordinates[name].x * scale,
             y:      coordinates[name].y * scale,
             width:  coordinates[name].width * scale,
-            height: coordinates[name].height * scale
+            height: coordinates[name].height * scale,
         });
     }
 

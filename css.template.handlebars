@@ -1,0 +1,11 @@
+{{#block "sprites"}}
+{{#each sprites}}
+.png-{{name}} {
+  background-image: url({{{escaped_image}}});
+  background-position: {{px.offset_x}} {{px.offset_y}};
+  width: {{px.width}};
+  height: {{px.height}};
+  background-size: {{px.total_width}} {{px.total_height}};
+}
+{{/each}}
+{{/block}}
