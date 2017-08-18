@@ -16,7 +16,6 @@ function spriteByExt(params = {}) {
     const ACCEPT    = ['.jpg','.png','.svg']; // Define extension acceptable (accept JPG, PNG, SVG)
     const DEFAULTS  = {
         css: {
-            preprocessor: 'css',        // Define css type output (accept css, less, sass, stylus)
             imagePath: '../images/',    // Path to write on CSS for image address
         },
         slug: (id, ext) => ext + '-' + id, // Pattern of class name and symbols id
