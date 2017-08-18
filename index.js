@@ -10,8 +10,7 @@ const templater   = require('spritesheet-templates');
 const gutil       = require('gulp-util');
 const PluginError = gutil.PluginError;
 
-let tpl = fs.readFileSync(__dirname + '/css.template.handlebars', 'utf8');
-templater.addHandlebarsTemplate('css', tpl);
+templater.addTemplate('css', require(__dirname + '/css.template.js'));
 
 function spriteByExt(params = {}) {
     const ACCEPT    = ['.jpg','.png','.svg']; // Define extension acceptable (accept JPG, PNG, SVG)
@@ -118,7 +117,7 @@ function spriteByExt(params = {}) {
                     });
 
                     let css = new gutil.File({
-                        path: result.ext.replace('.', '') + '-' + CONFIG.filename + '.' + CONFIG.css.preprocessor,
+                        path: result.ext.replace('.', '') + '-' + CONFIG.filename + '.css',
                         contents: new Buffer(templater({
                                 sprites: result.coordinates,
                                 spritesheet: {
@@ -127,7 +126,7 @@ function spriteByExt(params = {}) {
                                     image:  CONFIG.css.imagePath + CONFIG.filename + result.ext,
                                 },
                             }, {
-                                format: CONFIG.css.preprocessor,
+                                format: 'css',
                                 formatOpts: {
                                     cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
                                 },
@@ -136,7 +135,7 @@ function spriteByExt(params = {}) {
                     });
 
                     let css2x = new gutil.File({
-                        path: result.ext.replace('.', '') + '-' + CONFIG.filename2x + '.' + CONFIG.css.preprocessor,
+                        path: result.ext.replace('.', '') + '-' + CONFIG.filename2x + '.css',
                         contents: new Buffer(templater({
                                 sprites: result.coordinates2x,
                                 spritesheet: {
@@ -145,7 +144,7 @@ function spriteByExt(params = {}) {
                                     image:  CONFIG.css.imagePath + CONFIG.filename2x + result.ext,
                                 },
                             }, {
-                                format: CONFIG.css.preprocessor,
+                                format: 'css',
                                 formatOpts: {
                                     cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
                                 },
