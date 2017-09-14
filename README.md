@@ -30,16 +30,15 @@ Sprite-By-Ext can accept some options for use:
 
 ```js
 const gulp        = require('gulp');
-const spriteByExt = require('../index.js');
+const spriteByExt = require('gulp-sprite-by-ext');
 
 gulp.task('default', function () {
     return gulp.src(['./images/**/*.{png,jpg,svg}'])
     .pipe(spriteByExt({
         css: {
-            preprocessor: 'css',
-            imagePath: '../images/',
+            imagePath: '../images/',    // Path to write on CSS for image address
         },
-        slug: (id, ext) => id + '-' + ext,
+        slug: (id, ext) => ext + '-' + id, // Pattern of class name and symbols id
         filename: 'sprite',
         filename2x: 'sprite@2x',
     }))
@@ -51,20 +50,12 @@ gulp.task('default', function () {
 
 Property           | Necessary | Type         | Plugin default value
 -------------------|-----------|--------------|-----------
-[css.preprocessor] | no        | `String`     | `css`
 [css.imagePath]    | no        | `String`     | `../images/`
 [slug]             | no        | `function`   | `(id, ext) => ext + '-' + id`
 [filename]         | no        | `String`     | `sprite`
 [filename2x]       | no        | `String`     | `sprite@2x`
 
 More detailed explanation is below.
-
-#### css.preprocessor
-Type: `String`
-Default value: `css`
-
-Defines which extension will have the file of the output css.
-Preprocessor acceptable css type output (accept css, less, sass, stylus).
 
 #### css.imagePath
 Type: `String`
