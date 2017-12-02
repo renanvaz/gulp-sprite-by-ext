@@ -1,7 +1,7 @@
 // Load in local modules
-var fs = require('fs');
-var handlebars = require('handlebars');
-var tmpl = fs.readFileSync(__dirname + '/css.template.handlebars', 'utf8');
+const fs         = require('fs');
+const handlebars = require('handlebars');
+const tmpl       = fs.readFileSync(__dirname + '/css.template.handlebars', 'utf8');
 
 // Register the CSS as a partial for extension
 handlebars.registerPartial('css', tmpl);
@@ -9,11 +9,11 @@ handlebars.registerPartial('css', tmpl);
 // Define our css template fn ({sprites, options}) -> css
 function cssTemplate(data) {
   // Localize parameters
-  var sprites = data.sprites;
-  var options = data.options;
+  const sprites = data.sprites;
+  const options = data.options;
 
   // Fallback class naming function
-  var selectorFn = options.cssSelector || function defaultCssClass (sprite) {
+  const selectorFn = options.cssSelector || function defaultCssClass (sprite) {
     return '.icon-' + sprite.name;
   };
 
@@ -23,7 +23,7 @@ function cssTemplate(data) {
   });
 
   // Render and return CSS
-  var css = handlebars.compile(tmpl)(data);
+  const css = handlebars.compile(tmpl)(data);
   return css;
 }
 

@@ -32,16 +32,16 @@ function spriteByExt(params = {}) {
 
         if (ext === '.svg') {
             const sprite = svgSprite.collection({
-              inline: true,
-              clean: {
-                stripAttrs: ['id']
-              }
+                inline: true,
+                clean: {
+                    stripAttrs: ['id']
+                }
             });
 
             let result = {};
 
             for (let file of images[ext]) {
-                sprite.add(CONFIG.slug(path.basename(file.path, ext), ext), file.contents.toString());
+                sprite.add(CONFIG.slug(path.basename(file.path, ext), ext.replace('.', '')), file.contents.toString());
             }
 
             result.ext      = ext;
