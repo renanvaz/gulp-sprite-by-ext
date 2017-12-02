@@ -18,7 +18,7 @@ function spriteByExt(params = {}) {
         css: {
             imagePath: '../images/',    // Path to write on CSS for image address
         },
-        slug: (id, ext) => ext + '-' + id, // Pattern of class name and symbols id
+        slug: (id, ext) => ext.replace('.', '') + '-' + id, // Pattern of class name and symbols id
         filename: 'sprite',
         filename2x: 'sprite@2x',
     };
@@ -41,7 +41,7 @@ function spriteByExt(params = {}) {
             let result = {};
 
             for (let file of images[ext]) {
-                sprite.add(CONFIG.slug(path.basename(file.path, ext), ext.replace('.', '')), file.contents.toString());
+                sprite.add(CONFIG.slug(path.basename(file.path, ext), ext), file.contents.toString());
             }
 
             result.ext      = ext;
@@ -127,7 +127,7 @@ function spriteByExt(params = {}) {
                             }, {
                                 format: 'css',
                                 formatOpts: {
-                                    cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
+                                    cssSelector: (sprite) => '.' + CONFIG.slug(sprite.name, result.ext),
                                 },
                             }
                         ))
@@ -145,7 +145,7 @@ function spriteByExt(params = {}) {
                             }, {
                                 format: 'css',
                                 formatOpts: {
-                                    cssSelector: (sprite) => CONFIG.slug(sprite.name, result.ext),
+                                    cssSelector: (sprite) => '.' + CONFIG.slug(sprite.name, result.ext),
                                 },
                             }
                         ))
