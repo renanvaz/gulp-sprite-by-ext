@@ -47,7 +47,7 @@ function spriteByExt(params = {}) {
             result.ext      = ext;
             result.image    = new Buffer(sprite.compile());
 
-            setTimeout(() => d.resolve(result) ,0);
+            setTimeout(() => d.resolve(result), 0);
         } else {
             Spritesmith.run({ src: images[ext] }, function handle(err, result) {
                 if (err) { d.reject(); return false; }

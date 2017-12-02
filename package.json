@@ -1,6 +1,6 @@
 {
   "name": "gulp-sprite-by-ext",
-  "version": "2.1.13",
+  "version": "2.1.14",
   "description": "Sprite generator by extension file (use 2X images from source)",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "type": "git",
     "url": "https://github.com/renanvaz/gulp-sprite-by-ext.git"
   },
-  "author": "Renan Vaz <renanvaz@luego.com.br>",
+  "author": "Renan Vaz <renan.c.vaz@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "assign-deep": "^0.4.5",
